@@ -5,63 +5,73 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Save, Building2, Phone, Globe, Clock, MapPin } from "lucide-react"
+import { Save, Building2, Phone, Globe, Clock, Star, Image } from "lucide-react"
 import { useConfig } from "@/hooks/useConfig"
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton"
 import { Header } from "@/components/layout/Header"
-import { toast } from "sonner"
 
 interface SettingsForm {
-  center_name_ar: string
-  center_name_en: string
+  // Clinic Info
+  clinic_name_ar: string
+  clinic_name_en: string
+  clinic_address: string
+  clinic_phone: string
+  // Assistant Info
   assistant_name_ar: string
   assistant_name_en: string
-  address_ar: string
-  address_en: string
-  phone: string
-  working_hours_ar: string
-  working_hours_en: string
-  google_maps_url: string
+  // Working Hours
+  working_hours_start: string
+  working_hours_end: string
+  // Durations
+  consultation_duration: string
+  procedure_duration: string
+  // Links
+  google_maps_link: string
+  google_review_link: string
   instagram_url: string
   website_url: string
-}
-
-const defaultSettings: SettingsForm = {
-  center_name_ar: "مركز إيليت لايف الطبي",
-  center_name_en: "Elite Life Medical Centre",
-  assistant_name_ar: "مساعد إيليت",
-  assistant_name_en: "Elite Assistant",
-  address_ar: "دبي، الإمارات العربية المتحدة",
-  address_en: "Dubai, UAE",
-  phone: "+971 4 XXX XXXX",
-  working_hours_ar: "9:00 ص - 9:00 م",
-  working_hours_en: "9:00 AM - 9:00 PM",
-  google_maps_url: "",
-  instagram_url: "",
-  website_url: "",
+  logo_url: string
 }
 
 export default function SettingsPage() {
   const { config, loading, updateMultipleConfig, getConfigValue } = useConfig()
-  const [formData, setFormData] = useState<SettingsForm>(defaultSettings)
+  const [formData, setFormData] = useState<SettingsForm>({
+    clinic_name_ar: "",
+    clinic_name_en: "",
+    clinic_address: "",
+    clinic_phone: "",
+    assistant_name_ar: "",
+    assistant_name_en: "",
+    working_hours_start: "09:00",
+    working_hours_end: "20:00",
+    consultation_duration: "30",
+    procedure_duration: "60",
+    google_maps_link: "",
+    google_review_link: "",
+    instagram_url: "",
+    website_url: "",
+    logo_url: "",
+  })
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (config.length > 0) {
       setFormData({
-        center_name_ar: getConfigValue("center_name_ar") || defaultSettings.center_name_ar,
-        center_name_en: getConfigValue("center_name_en") || defaultSettings.center_name_en,
-        assistant_name_ar: getConfigValue("assistant_name_ar") || defaultSettings.assistant_name_ar,
-        assistant_name_en: getConfigValue("assistant_name_en") || defaultSettings.assistant_name_en,
-        address_ar: getConfigValue("address_ar") || defaultSettings.address_ar,
-        address_en: getConfigValue("address_en") || defaultSettings.address_en,
-        phone: getConfigValue("phone") || defaultSettings.phone,
-        working_hours_ar: getConfigValue("working_hours_ar") || defaultSettings.working_hours_ar,
-        working_hours_en: getConfigValue("working_hours_en") || defaultSettings.working_hours_en,
-        google_maps_url: getConfigValue("google_maps_url") || "",
+        clinic_name_ar: getConfigValue("clinic_name_ar") || "",
+        clinic_name_en: getConfigValue("clinic_name_en") || "",
+        clinic_address: getConfigValue("clinic_address") || "",
+        clinic_phone: getConfigValue("clinic_phone") || "",
+        assistant_name_ar: getConfigValue("assistant_name_ar") || "",
+        assistant_name_en: getConfigValue("assistant_name_en") || "",
+        working_hours_start: getConfigValue("working_hours_start") || "09:00",
+        working_hours_end: getConfigValue("working_hours_end") || "20:00",
+        consultation_duration: getConfigValue("consultation_duration") || "30",
+        procedure_duration: getConfigValue("procedure_duration") || "60",
+        google_maps_link: getConfigValue("google_maps_link") || "",
+        google_review_link: getConfigValue("google_review_link") || "",
         instagram_url: getConfigValue("instagram_url") || "",
         website_url: getConfigValue("website_url") || "",
+        logo_url: getConfigValue("logo_url") || "",
       })
     }
   }, [config])
@@ -69,32 +79,26 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setIsSaving(true)
 
-    const configs = Object.entries(formData).map(([key, value]) => ({
-      key,
-      value,
-      description: getDescription(key),
-    }))
+    const configs = [
+      { key: "clinic_name_ar", value: formData.clinic_name_ar, description: "Clinic name in Arabic" },
+      { key: "clinic_name_en", value: formData.clinic_name_en, description: "Clinic name in English" },
+      { key: "clinic_address", value: formData.clinic_address, description: "Clinic address" },
+      { key: "clinic_phone", value: formData.clinic_phone, description: "Clinic phone number" },
+      { key: "assistant_name_ar", value: formData.assistant_name_ar, description: "اسم المساعد الذكي بالعربية" },
+      { key: "assistant_name_en", value: formData.assistant_name_en, description: "اسم المساعد الذكي بالإنجليزية" },
+      { key: "working_hours_start", value: formData.working_hours_start, description: "Clinic opening time" },
+      { key: "working_hours_end", value: formData.working_hours_end, description: "Clinic closing time" },
+      { key: "consultation_duration", value: formData.consultation_duration, description: "Consultation duration in minutes" },
+      { key: "procedure_duration", value: formData.procedure_duration, description: "Procedure duration in minutes" },
+      { key: "google_maps_link", value: formData.google_maps_link, description: "Google Maps link" },
+      { key: "google_review_link", value: formData.google_review_link, description: "Google Review link" },
+      { key: "instagram_url", value: formData.instagram_url, description: "رابط انستغرام" },
+      { key: "website_url", value: formData.website_url, description: "رابط الموقع الإلكتروني" },
+      { key: "logo_url", value: formData.logo_url, description: "Logo URL" },
+    ]
 
     await updateMultipleConfig(configs)
     setIsSaving(false)
-  }
-
-  const getDescription = (key: string): string => {
-    const descriptions: Record<string, string> = {
-      center_name_ar: "اسم المركز بالعربية",
-      center_name_en: "اسم المركز بالإنجليزية",
-      assistant_name_ar: "اسم المساعد الذكي بالعربية",
-      assistant_name_en: "اسم المساعد الذكي بالإنجليزية",
-      address_ar: "العنوان بالعربية",
-      address_en: "العنوان بالإنجليزية",
-      phone: "رقم الهاتف",
-      working_hours_ar: "ساعات العمل بالعربية",
-      working_hours_en: "ساعات العمل بالإنجليزية",
-      google_maps_url: "رابط خرائط جوجل",
-      instagram_url: "رابط انستغرام",
-      website_url: "رابط الموقع الإلكتروني",
-    }
-    return descriptions[key] || key
   }
 
   if (loading) return <LoadingSkeleton />
@@ -114,7 +118,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-6">
-        {/* Center Info */}
+        {/* Clinic Info */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -127,92 +131,85 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label>اسم المركز بالعربية</Label>
                 <Input
-                  value={formData.center_name_ar}
+                  value={formData.clinic_name_ar}
                   onChange={(e) =>
-                    setFormData({ ...formData, center_name_ar: e.target.value })
+                    setFormData({ ...formData, clinic_name_ar: e.target.value })
                   }
                   dir="rtl"
+                  placeholder="مركز إيليت لايف الطبي"
                 />
               </div>
               <div className="space-y-2">
                 <Label>اسم المركز بالإنجليزية</Label>
                 <Input
-                  value={formData.center_name_en}
+                  value={formData.clinic_name_en}
                   onChange={(e) =>
-                    setFormData({ ...formData, center_name_en: e.target.value })
+                    setFormData({ ...formData, clinic_name_en: e.target.value })
                   }
                   dir="ltr"
+                  placeholder="Elite Life Medical Centre"
                 />
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label>العنوان</Label>
+              <Input
+                value={formData.clinic_address}
+                onChange={(e) =>
+                  setFormData({ ...formData, clinic_address: e.target.value })
+                }
+                dir="ltr"
+                placeholder="Jumeirah Beach Road, Near Jumeirah Plaza Villa No.87"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>رقم الهاتف</Label>
+              <Input
+                value={formData.clinic_phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, clinic_phone: e.target.value })
+                }
+                dir="ltr"
+                placeholder="+971 4 3495363"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Assistant Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Star className="w-5 h-5 text-[#722F37]" />
+              المساعد الذكي
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>اسم المساعد الذكي بالعربية</Label>
+                <Label>اسم المساعد بالعربية</Label>
                 <Input
                   value={formData.assistant_name_ar}
                   onChange={(e) =>
                     setFormData({ ...formData, assistant_name_ar: e.target.value })
                   }
                   dir="rtl"
+                  placeholder="بايرا"
                 />
               </div>
               <div className="space-y-2">
-                <Label>اسم المساعد الذكي بالإنجليزية</Label>
+                <Label>اسم المساعد بالإنجليزية</Label>
                 <Input
                   value={formData.assistant_name_en}
                   onChange={(e) =>
                     setFormData({ ...formData, assistant_name_en: e.target.value })
                   }
                   dir="ltr"
+                  placeholder="Pyra"
                 />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Contact Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Phone className="w-5 h-5 text-[#722F37]" />
-              معلومات الاتصال
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>العنوان بالعربية</Label>
-                <Input
-                  value={formData.address_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address_ar: e.target.value })
-                  }
-                  dir="rtl"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>العنوان بالإنجليزية</Label>
-                <Input
-                  value={formData.address_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address_en: e.target.value })
-                  }
-                  dir="ltr"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>رقم الهاتف</Label>
-              <Input
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                dir="ltr"
-                placeholder="+971 4 XXX XXXX"
-              />
             </div>
           </CardContent>
         </Card>
@@ -222,31 +219,54 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Clock className="w-5 h-5 text-[#722F37]" />
-              ساعات العمل
+              ساعات العمل والمدد
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>ساعات العمل بالعربية</Label>
+                <Label>وقت الفتح</Label>
                 <Input
-                  value={formData.working_hours_ar}
+                  type="time"
+                  value={formData.working_hours_start}
                   onChange={(e) =>
-                    setFormData({ ...formData, working_hours_ar: e.target.value })
+                    setFormData({ ...formData, working_hours_start: e.target.value })
                   }
-                  dir="rtl"
-                  placeholder="9:00 ص - 9:00 م"
                 />
               </div>
               <div className="space-y-2">
-                <Label>ساعات العمل بالإنجليزية</Label>
+                <Label>وقت الإغلاق</Label>
                 <Input
-                  value={formData.working_hours_en}
+                  type="time"
+                  value={formData.working_hours_end}
                   onChange={(e) =>
-                    setFormData({ ...formData, working_hours_en: e.target.value })
+                    setFormData({ ...formData, working_hours_end: e.target.value })
                   }
-                  dir="ltr"
-                  placeholder="9:00 AM - 9:00 PM"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>مدة الاستشارة (بالدقائق)</Label>
+                <Input
+                  type="number"
+                  value={formData.consultation_duration}
+                  onChange={(e) =>
+                    setFormData({ ...formData, consultation_duration: e.target.value })
+                  }
+                  placeholder="30"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>مدة الإجراء (بالدقائق)</Label>
+                <Input
+                  type="number"
+                  value={formData.procedure_duration}
+                  onChange={(e) =>
+                    setFormData({ ...formData, procedure_duration: e.target.value })
+                  }
+                  placeholder="60"
                 />
               </div>
             </div>
@@ -262,38 +282,78 @@ export default function SettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>رابط خرائط جوجل</Label>
-              <Input
-                value={formData.google_maps_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, google_maps_url: e.target.value })
-                }
-                dir="ltr"
-                placeholder="https://maps.google.com/..."
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>رابط خرائط جوجل</Label>
+                <Input
+                  value={formData.google_maps_link}
+                  onChange={(e) =>
+                    setFormData({ ...formData, google_maps_link: e.target.value })
+                  }
+                  dir="ltr"
+                  placeholder="https://maps.app.goo.gl/..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>رابط تقييم جوجل</Label>
+                <Input
+                  value={formData.google_review_link}
+                  onChange={(e) =>
+                    setFormData({ ...formData, google_review_link: e.target.value })
+                  }
+                  dir="ltr"
+                  placeholder="https://www.google.com/search?q=..."
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>رابط انستغرام</Label>
-              <Input
-                value={formData.instagram_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, instagram_url: e.target.value })
-                }
-                dir="ltr"
-                placeholder="https://instagram.com/..."
-              />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>رابط انستغرام</Label>
+                <Input
+                  value={formData.instagram_url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, instagram_url: e.target.value })
+                  }
+                  dir="ltr"
+                  placeholder="https://www.instagram.com/..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>رابط الموقع الإلكتروني</Label>
+                <Input
+                  value={formData.website_url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, website_url: e.target.value })
+                  }
+                  dir="ltr"
+                  placeholder="https://elitelifemedicalcentre.com/..."
+                />
+              </div>
             </div>
+
             <div className="space-y-2">
-              <Label>رابط الموقع الإلكتروني</Label>
+              <Label>رابط الشعار (Logo URL)</Label>
               <Input
-                value={formData.website_url}
+                value={formData.logo_url}
                 onChange={(e) =>
-                  setFormData({ ...formData, website_url: e.target.value })
+                  setFormData({ ...formData, logo_url: e.target.value })
                 }
                 dir="ltr"
                 placeholder="https://..."
               />
+              {formData.logo_url && (
+                <div className="mt-2 p-4 bg-gray-50 rounded-lg">
+                  <img
+                    src={formData.logo_url}
+                    alt="Logo Preview"
+                    className="max-h-20 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none'
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
